@@ -1,6 +1,6 @@
 import requests
 
-url = 'localhost'
+
 
 def brute_force():
     usernames = ['user']  # List of usernames to try
@@ -8,7 +8,7 @@ def brute_force():
 
     for username in usernames:
         for password in passwords:
-            response = requests.post(url, json={'username': username, 'password': password})
+            response = requests.post(json={'username': username, 'password': password})
             if response.status_code == 200:
                 print(f'[SUCCESS] Logged in with {username}:{password}')
                 return
