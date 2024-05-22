@@ -27,7 +27,9 @@ app.post('/login', (req, res) => {
         logAttempt(username, user.uuid, sourceIp, location, systemComponent, false);
         return res.status(401).send('Invalid username or password');
     }
-
+    if (loginAttempts[username].count >= 3){
+        return res.status(429).send('temporarly locked out');
+    } 
     logAttempt(username, user.uuid, sourceIp, location, systemComponent, true);
     res.send('Login successful');
 });
@@ -37,11 +39,7 @@ const logAttempt = (username, uuid, sourceIp, location, systemComponent, success
         loginAttempts[username] = { count: 0, lockUntil: null };
     }
 
-    if (success) {
-        loginAttempts[username].count = 0; // reset counter on success
-        logHelper.log('Successful login', uuid, sourceIp, location, null, systemComponent);
-        return;
-    }
+    
 
     const currentTime = Date.now();
     if (loginAttempts[username].lockUntil && currentTime < loginAttempts[username].lockUntil) {
@@ -49,12 +47,18 @@ const logAttempt = (username, uuid, sourceIp, location, systemComponent, success
         return;
     }
 
-    //loginAttempts[username].count++;
+    loginAttempts[username].count++;
     logHelper.log('Failed login attempt', uuid, sourceIp, location, null, systemComponent);
 
     if (loginAttempts[username].count >= 3) {
         loginAttempts[username].lockUntil = currentTime + 30000; // lock for 30 seconds
         logHelper.log('Account locked', uuid, sourceIp, location, 'Too many failed login attempts', systemComponent);
+    }
+
+    if (success) {
+        loginAttempts[username].count = 0; // reset counter on success
+        logHelper.log('Successful login', uuid, sourceIp, location, null, systemComponent);
+        return;
     }
 };
 
