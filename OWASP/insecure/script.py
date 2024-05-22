@@ -1,6 +1,6 @@
 import requests
 
-url = 'http://localhost:3000/login'
+url = 'localhost'
 
 def brute_force():
     usernames = ['user']  # List of usernames to try
