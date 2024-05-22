@@ -1,0 +1,7 @@
+[2024-05-22T06:38:38.559Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
+[2024-05-22T06:38:38.650Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
+[2024-05-22T06:38:38.735Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
+[2024-05-22T06:39:15.355Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
+[2024-05-22T06:39:15.440Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
+[2024-05-22T06:39:15.524Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
+[2024-05-22T06:39:15.610Z] [Successful login] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
