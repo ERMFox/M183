@@ -24,3 +24,8 @@
 [2024-05-22T06:47:46.407Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
 [2024-05-22T06:47:46.494Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [none], system: [express-backend]
 [2024-05-22T06:47:46.494Z] [Account locked] by [123e4567-e89b-12d3-a456-426614174000] from IP: [::ffff:127.0.0.1], location: [unknown], error: [Too many failed login attempts], system: [express-backend]
+[2024-05-22T06:54:07.956Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000] from IP: [undefined], location: [undefined], error: [none], system: [undefined]
+[2024-05-22T06:54:47.931Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000]
+[2024-05-22T06:55:25.843Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000]
+[2024-05-22T06:56:16.475Z] [Failed login attempt] by [123e4567-e89b-12d3-a456-426614174000]
+[2024-05-22T06:56:16.475Z] [Successful login] by [123e4567-e89b-12d3-a456-426614174000]

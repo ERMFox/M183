@@ -3,9 +3,9 @@ const path = require('path');
 
 const logFilePath = path.join(__dirname, 'logs.txt');
 
-const log = (actionPerformed, uuid, sourceIp, location, error, systemComponent) => {
+const log = (actionPerformed, uuid) => {
     const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] [${actionPerformed}] by [${uuid}] from IP: [${sourceIp}], location: [${location}], error: [${error || 'none'}], system: [${systemComponent}]\n`;
+    const logEntry = `[${timestamp}] [${actionPerformed}] by [${uuid}]\n`;
 
     fs.appendFile(logFilePath, logEntry, (err) => {
         if (err) {
