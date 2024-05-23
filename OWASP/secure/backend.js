@@ -2,37 +2,61 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const logHelper = require('./logHelper');
+const twoFactorAuth = require('./twoFactorAuth');
 
 const app = express();
 app.use(bodyParser.json());
 
-const users = [{ uuid: '123e4567-e89b-12d3-a456-426614174000', username: 'user', password: bcrypt.hashSync('password123', 10) }]; // Simple user storage
+const users = [
+  {
+    uuid: '123e4567-e89b-12d3-a456-426614174000',
+    username: 'user',
+    password: bcrypt.hashSync('password123', 10),
+    secret: twoFactorAuth.generateSecret() // Generate a secret key for each user
+  }
+];
 
-let loginAttempts = {}; // To store failed login attempts
+let loginAttempts = {};
 
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    const user = users.find(u => u.username === username);
-    const sourceIp = req.ip;
-    const location = req.headers['x-location'] || 'unknown';
-    const systemComponent = 'express-backend';
+app.post('/login', async (req, res) => {
+  const { username, password, twoFactorCode } = req.body;
+  const user = users.find(u => u.username === username);
+  const sourceIp = req.ip;
+  const location = req.headers['x-location'] || 'unknown';
+  const systemComponent = 'express-backend';
 
-    if (!user) {
-        logAttempt(username, 'unknown', sourceIp, location, systemComponent, false);
-        return res.status(401).send('Invalid username or password');
-    }
+  if (!user) {
+    logAttempt(username, 'unknown', sourceIp, location, systemComponent, false);
+    return res.status(401).send('Invalid username or password');
+  }
 
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
-    if (!isPasswordValid) {
-        logAttempt(username, user.uuid, sourceIp, location, systemComponent, false);
-        return res.status(401).send('Invalid username or password');
-    }
-    if (loginAttempts[username].count >= 3){
-        return res.status(429).send('temporarly locked out');
-    } 
-    logAttempt(username, user.uuid, sourceIp, location, systemComponent, true);
-    res.send('Login successful');
+  const isPasswordValid = bcrypt.compareSync(password, user.password);
+  if (!isPasswordValid) {
+    logAttempt(username, user.uuid, sourceIp, location, systemComponent, false);
+    return res.status(401).send('Invalid username or password');
+  }
+
+  if (loginAttempts[username] && loginAttempts[username].count >= 3) {
+    return res.status(429).send('Temporarily locked out');
+  }
+
+  // If no 2FA code is provided, prompt the user for it
+  if (!twoFactorCode) {
+    twoFactorAuth.displayQRCode(user.secret);
+    return res.status(401).send('Please provide the 2FA code');
+  }
+
+  // Verify the 2FA code
+  const isCodeValid = twoFactorAuth.verifyTOTPCode(user.secret, twoFactorCode);
+  if (!isCodeValid) {
+    logAttempt(username, user.uuid, sourceIp, location, systemComponent, false);
+    return res.status(401).send('Invalid 2FA code');
+  }
+
+  logAttempt(username, user.uuid, sourceIp, location, systemComponent, true);
+  res.send('Login successful');
 });
+
 
 const logAttempt = (username, uuid, sourceIp, location, systemComponent, success) => {
     if (!loginAttempts[username]) {
