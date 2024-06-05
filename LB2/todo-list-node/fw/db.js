@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const dbConfig = require('../config');
+const logHelper = require('../tools/log_helper')
 
 // Verbindung zur Datenbank herstellen
 async function connectDB() {
@@ -8,6 +9,7 @@ async function connectDB() {
         console.log('Database connected');
         return connection;
     } catch (error) {
+        logHelper.log("Connection to Database", "system", "system", "local", error, "db.js");
         console.error('Error connecting to database:', error);
     }
 }

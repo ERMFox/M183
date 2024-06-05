@@ -1,5 +1,6 @@
 const login = require('../login');
 const db = require('../fw/db');
+const logHelper = require('../tools/log_helper')
 
 async function getHtml(req) {
     let content = `<!DOCTYPE html>
@@ -22,6 +23,7 @@ async function getHtml(req) {
         id = req.cookies.userid;
         let stmt = await db.executeStatement("select users.id userid, roles.id roleid, roles.title rolename from users inner join permissions on users.id = permissions.userid inner join roles on permissions.roleID = roles.id where userid = "+id);
         console.log(stmt);
+        logHelper.log("Database Accessed", id, "system", "system", "","webservice")
 
         // load role from db
         if(stmt.length > 0) {
