@@ -9,3 +9,23 @@ By using this script, you agree to the following terms:
 - You understand that the authors of this repository do not take any accountability or responsibility for any misuse or damage caused by the use of this script.
 
 **It is your responsibility to ensure that your use of the script complies with all applicable laws and regulations.**
+
+
+# LB2
+
+## Found Security Risks
+1. No Logs
+2. Console displays login information
+3. Login Credentials in SQL script
+4. Login Credentials not hashed
+
+
+## Added Functionalities
+
+### Logs
+
+- General Secutirty Logs
+
+### Authentication & Authorization
+
+- Passkey implementation
