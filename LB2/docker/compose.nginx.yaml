@@ -1,0 +1,6 @@
+name: nginx
+services:
+  nginx:
+    image: my-nginx-ssl:latest
+    ports:
+      - "443:443"

@@ -1,0 +1,20 @@
+# Use the official NGINX base image
+FROM nginx:alpine
+
+# Install OpenSSL for generating self-signed certificates
+RUN apk add --no-cache openssl
+
+# Copy custom NGINX configuration file to the container
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy entrypoint script
+COPY entrypoint.sh /usr/local/bin/
+
+# Make entrypoint script executable
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Expose only port 443 since we are upgrading connections
+EXPOSE 443
+
+# Run the entrypoint script
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

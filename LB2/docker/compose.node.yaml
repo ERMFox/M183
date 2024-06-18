@@ -1,6 +1,7 @@
 name: m183_lb2_node
 include:
   - ./compose.db.yaml
+  - ./compose.nginx.yaml
 services:
   web:
       image: node:latest
@@ -17,3 +18,5 @@ services:
           source: ../todo-list-node
           target: /home/node/app
       command: "npm start"
+
+      
