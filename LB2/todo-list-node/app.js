@@ -11,6 +11,7 @@ const editTask = require('./edit');
 const saveTask = require('./savetask');
 const search = require('./search');
 const searchProvider = require('./search/v2/index');
+const logs = require('./tools/log_helper')
 
 const app = express();
 const PORT = 3000;
@@ -30,6 +31,7 @@ app.use(cookieParser());
 
 // Routen
 app.get('/', async (req, res) => {
+    performLogging("/")
     if (activeUserSession(req)) {
         let html = await wrapContent(await index.html(req), req)
         res.send(html);
@@ -39,6 +41,7 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/', async (req, res) => {
+    performLogging("/, post")
     if (activeUserSession(req)) {
         let html = await wrapContent(await index.html(req), req)
         res.send(html);
@@ -49,6 +52,7 @@ app.post('/', async (req, res) => {
 
 // edit task
 app.get('/admin/users', async (req, res) => {
+    performLogging("/admin/users")
     if(activeUserSession(req)) {
         let html = await wrapContent(await adminUser.html, req);
         res.send(html);
@@ -59,6 +63,7 @@ app.get('/admin/users', async (req, res) => {
 
 // edit task
 app.get('/edit', async (req, res) => {
+    performLogging("/edit")
     if (activeUserSession(req)) {
         let html = await wrapContent(await editTask.html(req), req);
         res.send(html);
@@ -69,6 +74,7 @@ app.get('/edit', async (req, res) => {
 
 // Login-Seite anzeigen
 app.get('/login', async (req, res) => {
+    performLogging("/login")
     let content = await login.handleLogin(req, res);
 
     if(content.user.userid !== 0) {
@@ -91,6 +97,7 @@ app.get('/logout', (req, res) => {
 
 // Profilseite anzeigen
 app.get('/profile', (req, res) => {
+    performLogging("/profile")
     if (req.session.loggedin) {
         res.send(`Welcome, ${req.session.username}! <a href="/logout">Logout</a>`);
     } else {
@@ -100,6 +107,7 @@ app.get('/profile', (req, res) => {
 
 // save task
 app.post('/savetask', async (req, res) => {
+    performLogging("/savetask, post")
     if (activeUserSession(req)) {
         let html = await wrapContent(await saveTask.html(req), req);
         res.send(html);
@@ -110,12 +118,14 @@ app.post('/savetask', async (req, res) => {
 
 // search
 app.post('/search', async (req, res) => {
+    performLogging("/search, post")
     let html = await search.html(req);
     res.send(html);
 });
 
 // search provider
 app.get('/search/v2/', async (req, res) => {
+    performLogging("/search/v2")
     let result = await searchProvider.search(req);
     res.send(result);
 });
@@ -129,6 +139,11 @@ app.listen(PORT, () => {
 async function wrapContent(content, req) {
     let headerHtml = await header(req);
     return headerHtml+content+footer;
+}
+
+function performLogging(route){
+    logs.log("Accessed Rounte: " + route, cookies.userid, req.ip, req.headers['x-location'] || 'unknown', "", "Web-Interface")
+    
 }
 
 function activeUserSession(req) {
