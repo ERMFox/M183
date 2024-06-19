@@ -15,8 +15,8 @@ By using this script, you agree to the following terms:
 
 ## Found Security Risks
 1. ~~No Logs~~
-2. Console displays login information
-3. Login Credentials in SQL script 
+2. Console displays login information 
+3. Login Credentials in SQL script (not exactly a risk but could be done differently)
 4. Login Credentials not hashed
 5. ~~Security voulnerabilty with mysql package~~
 6. bypass login with edit of cookies
