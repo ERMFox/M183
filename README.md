@@ -23,6 +23,7 @@ By using this script, you agree to the following terms:
 7. server crash if cookies are filled incorectly
 8. /admin/users route accesible as long as cookies are filled
 9. ~~http is insecure~~
+10. login config for database in js
 
 ## Added Functionalities
 

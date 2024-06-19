@@ -122,9 +122,7 @@ ALTER TABLE `users`
   MODIFY `ID` bigint(20) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40101 SET CHARAChostTION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 insert into roles (ID, title) values (2, 'User');
 insert into roles (ID, title) values (1, 'Admin');
@@ -135,3 +133,12 @@ insert into users (ID, username, password) values (2, 'user1', 'Amazing.Pass23')
 
 insert into permissions(ID, userID, roleID) values(null, 1, 1);
 insert into permissions(ID, userID, roleID) values(null, 2, 2);
+
+CREATE USER 'm183_app'@'%' IDENTIFIED BY 'm183_password_of_App!?';
+
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, 
+    CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, REFERENCES, SHOW VIEW, 
+    CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER 
+    ON m183_lb2.* TO 'm183_app'@'%';
+
+FLUSH PRIVILEGES;
