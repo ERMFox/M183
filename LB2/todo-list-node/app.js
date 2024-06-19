@@ -53,7 +53,7 @@ app.post('/', async (req, res) => {
 // edit task
 app.get('/admin/users', async (req, res) => {
     performLogging("/admin/users", req)
-    if(activeUserSession(req)) {
+    if(req.cookies.userid = 1) {
         let html = await wrapContent(await adminUser.html, req);
         res.send(html);
     } else {
