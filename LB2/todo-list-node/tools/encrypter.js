@@ -15,3 +15,7 @@ function signCookie(value, secret) {
     const validSignature = hmac.digest('hex');
     return validSignature === signature ? value : null;
   }
+module.exports = {
+    signCookie,
+    verifyCookie
+}
