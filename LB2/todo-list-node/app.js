@@ -31,7 +31,7 @@ app.use(cookieParser());
 
 // Routen
 app.get('/', async (req, res) => {
-    performLogging("/")
+    performLogging("/", req)
     if (activeUserSession(req)) {
         let html = await wrapContent(await index.html(req), req)
         res.send(html);
@@ -41,7 +41,7 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/', async (req, res) => {
-    performLogging("/, post")
+    performLogging("/, post", req)
     if (activeUserSession(req)) {
         let html = await wrapContent(await index.html(req), req)
         res.send(html);
@@ -52,7 +52,7 @@ app.post('/', async (req, res) => {
 
 // edit task
 app.get('/admin/users', async (req, res) => {
-    performLogging("/admin/users")
+    performLogging("/admin/users", req)
     if(activeUserSession(req)) {
         let html = await wrapContent(await adminUser.html, req);
         res.send(html);
@@ -63,7 +63,7 @@ app.get('/admin/users', async (req, res) => {
 
 // edit task
 app.get('/edit', async (req, res) => {
-    performLogging("/edit")
+    performLogging("/edit", req)
     if (activeUserSession(req)) {
         let html = await wrapContent(await editTask.html(req), req);
         res.send(html);
@@ -74,7 +74,7 @@ app.get('/edit', async (req, res) => {
 
 // Login-Seite anzeigen
 app.get('/login', async (req, res) => {
-    performLogging("/login")
+    performLogging("/login", req)
     let content = await login.handleLogin(req, res);
 
     if(content.user.userid !== 0) {
@@ -97,7 +97,7 @@ app.get('/logout', (req, res) => {
 
 // Profilseite anzeigen
 app.get('/profile', (req, res) => {
-    performLogging("/profile")
+    performLogging("/profile", req)
     if (req.session.loggedin) {
         res.send(`Welcome, ${req.session.username}! <a href="/logout">Logout</a>`);
     } else {
@@ -107,7 +107,7 @@ app.get('/profile', (req, res) => {
 
 // save task
 app.post('/savetask', async (req, res) => {
-    performLogging("/savetask, post")
+    performLogging("/savetask, post", req)
     if (activeUserSession(req)) {
         let html = await wrapContent(await saveTask.html(req), req);
         res.send(html);
@@ -118,14 +118,14 @@ app.post('/savetask', async (req, res) => {
 
 // search
 app.post('/search', async (req, res) => {
-    performLogging("/search, post")
+    performLogging("/search, post", req)
     let html = await search.html(req);
     res.send(html);
 });
 
 // search provider
 app.get('/search/v2/', async (req, res) => {
-    performLogging("/search/v2")
+    performLogging("/search/v2", req)
     let result = await searchProvider.search(req);
     res.send(result);
 });
@@ -141,8 +141,13 @@ async function wrapContent(content, req) {
     return headerHtml+content+footer;
 }
 
-function performLogging(route){
-    logs.log("Accessed Rounte: " + route, cookies.userid, req.ip, req.headers['x-location'] || 'unknown', "", "Web-Interface")
+function performLogging(route, req){
+    let userid = req.cookies.userid
+    if (!req.cookies.userid){
+        userid = null
+    }
+    
+    logs.log("Accessed Rounte: " + route, userid, req.ip, req.headers['x-location'] || 'unknown', "", "Web-Interface")
     
 }
 
