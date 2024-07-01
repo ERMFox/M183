@@ -34,3 +34,73 @@ By using this script, you agree to the following terms:
 ### Authentication & Authorization
 
 - Passkey implementation
+
+# LB2 Phase 2
+ - Testing of App from Mr. Zingg
+
+## NOTES:
+ - Modification Required to test rest of app, changing SQL params for login 
+
+## 1. Security Voulnerability
+
+### Usage of Voulnerable npm package
+
+![Installation in Mr Zingg's code](image.png)
+![Voulnerable package](image-1.png)
+
+### What did i do?
+i used npm install to install the files nescecarry for the code to run in docker
+
+### What did i expect?
+no security voulnerable packages
+
+### What was the result?
+A critical security voulnerable package
+
+## 2. Password
+
+![Login Form](image-2.png)
+
+### What did i do?
+i entered username and password into the login form
+### what did i expect?
+Password to be a password form
+### What was the result?
+Password showed up as plain text
+
+## 3. Parameters
+
+![Login Params](image-3.png)
+
+### What did i do
+i tried to login
+### what did i expect
+parameters not to show up in the request
+### what did happen
+parameters are in the get request as plain text
+
+## 4. HTTP
+
+### What did i do
+i opened localhost
+### What did i expect
+i expected a https connection
+### what did i get
+i got a http connection
+
+## 5. Login
+
+![login after login](image-4.png)
+
+### What did i do
+i tried to login after having had to modify the code in ordrr for it to not automaticly lock me out
+
+### What did i expect
+to get to the tasks page
+
+### What did happen
+
+i got a weird alagumation of the tasks and login page, when i clicked on any of the links it had a simmilar result to a failed login, which would then result in me getting locked out for 15 minutes
+
+**delete this**
+this app is fucked
