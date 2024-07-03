@@ -118,7 +118,6 @@ no voulenrabuilkites or very few
 ### what did happen
 no voulnerabilities found, but that may have to do with the fact that the app dosnt run correctly
 
-# Whitebox
 ## 8. cookie to block bypass
 ### what did i expect to find
 i expected something like a jwt or csrf cookie
@@ -161,5 +160,27 @@ its possible to do a sql injection, in qhich case it may also be possible to do 
 evaluation of code when displaying variables
 ### what did i find
 no evaluation of code
+
+## 15. Edit
+### What did i do
+opened the app and clicked edit
+### What did i expect
+the edit page to open and a task to be editable
+### What did happen
+tasks wasnt openable and got locked out for 15 minutes
+
+## 16. create
+### what did i do
+tried creating a task
+### What did i expect
+a task to be able to be created
+### what did happen
+tasks wasnt able to be created and got locked out for 15 minutes
+
+## 17. remove
+### What did i expect
+the code to have a /remove endpoint
+### what did i find
+no /remove endpoint
 
 # Honestly i currently have no idea for further tests i can do, really all of this  testing was performed by ERMFox (Soph), look into the git logs
