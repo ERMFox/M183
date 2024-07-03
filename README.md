@@ -136,7 +136,7 @@ the same type of lockout as the rest so standart user can access
 ### What did i expect
 passwords to be saved as a hash
 ### what did i find
-Passwords saved as plain ~~ass~~ text
+Passwords saved as plain text
 
 ## 11. .env
 ### What did i expect
