@@ -102,5 +102,64 @@ to get to the tasks page
 
 i got a weird alagumation of the tasks and login page, when i clicked on any of the links it had a simmilar result to a failed login, which would then result in me getting locked out for 15 minutes
 
-**delete this**
-this app is fucked
+## 6. Lockout
+### What did i do
+i failed to log in 3 times
+### what did i expect to happen
+i expected t be locked out for 5 minutes
+### what did happen
+i got locked out, however as it was a 15 minute lock out it felt more as a Denial of service than a feature
+
+## 7. Owasp Zap
+### what did i do?
+i ran owasp zap
+### what did i expect to happen
+no voulenrabuilkites or very few
+### what did happen
+no voulnerabilities found, but that may have to do with the fact that the app dosnt run correctly
+
+# Whitebox
+## 8. cookie to block bypass
+### what did i expect to find
+i expected something like a jwt or csrf cookie
+### What did i find
+i found a Csrf cookie so good job
+
+## 9. Admin/users route
+### what did i expect to find
+a different way of locking out than jsut checking for logged in people
+### what did i find
+the same type of lockout as the rest so standart user can access
+
+## 10. MySQL hash
+![Image of mysql users table](image-5.png)
+### What did i expect
+passwords to be saved as a hash
+### what did i find
+Passwords saved as plain ~~ass~~ text
+
+## 11. .env
+### What did i expect
+the credentials to not be stored within the scrtipt
+### what did i find
+the credentials are in a .env file BUT they are also in the scrip should it fail to load the dotenv
+
+## 12. hidden field password in admin/users
+### what did i expect
+password not to even show up
+### what did i find
+password still shows up
+
+## 13. SQL injections
+### What did i expect
+statement to be verified when doing a search for tasks
+### what did i find
+its possible to do a sql injection, in qhich case it may also be possible to do a command injection, however i cant test this as the app is not working correctly
+
+## 14. XSS
+### what did i expect
+evaluation of code when displaying variables
+### what did i find
+no evaluation of code
+
+# Honestly i currently have no idea for further tests i can do, really all of this  testing was performed by ERMFox (Soph), look into the git logs
