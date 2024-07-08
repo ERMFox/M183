@@ -73,7 +73,24 @@ app.get('/edit', async (req, res) => {
 });
 
 // Login-Seite anzeigen
+
+
 app.get('/login', async (req, res) => {
+    performLogging("/login", req)
+    let content = await login.handleLogin(req, res);
+
+    if(content.user.userid !== 0) {
+        // login was successful... set cookies and redirect to /
+        login.startUserSession(res, content.user);
+    } else {
+        // login unsuccessful or not made jet... display login form
+        let html = await wrapContent(content.html, req);
+        res.send(html);
+    }
+});
+
+app.post('/login', async (req, res) => {
+    console.log(req.body)
     performLogging("/login", req)
     let content = await login.handleLogin(req, res);
 

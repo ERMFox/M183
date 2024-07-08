@@ -9,17 +9,17 @@ async function handleLogin(req, res) {
   let user = { username: "", userid: 0 };
 
   if (
-    typeof req.query.username !== "undefined" &&
-    typeof req.query.password !== "undefined"
+    typeof req.body.username !== "undefined" &&
+    typeof req.body.password !== "undefined"
   ) {
     // Get username and password from the form and call the validateLogin
 
-    let result = await validateLogin(req.query.username, req.query.password);
+    let result = await validateLogin(req.body.username, req.body.password);
 
     if (result.valid) {
       // Login is correct. Store user information to be returned.
 
-      user.username = req.query.username;
+      user.username = req.body.username;
 
       user.userid = result.userId;
 
@@ -113,7 +113,7 @@ async function validateLogin(username, password) {
 async function verify2FA(req, res) {
   const userId = req.user.userid;
 
-  const usertwoFaCode = req.query.twoFaCode;
+  const usertwoFaCode = req.body.twoFaCode;
 
   const dbConnection = await db.connectDB();
 
@@ -157,7 +157,7 @@ function getHtml() {
   return `
     <h2>Login</h2>
 
-    <form id="form" method="get" action="/login">
+    <form id="form" method="post" action="/login">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" class="form-control size-medium" name="username" id="username">
