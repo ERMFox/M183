@@ -8,9 +8,6 @@ async function getHtml(req) {
     let options = ["Open", "In Progress", "Done"];
 
     if(req.query.id !== undefined) {
-        console.log('req.query: ')
-        console.log(req.query);
-        console.log(req.query.id);
         taskId = req.query.id;
         let conn = await db.connectDB();
         let [result, fields] = await conn.query('select ID, title, state from tasks where ID = '+taskId);

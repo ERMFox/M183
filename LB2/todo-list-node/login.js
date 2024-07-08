@@ -1,6 +1,7 @@
 const db = require("./fw/db");
-
+const bcrypt = require("bcrypt")
 const speakeasy = require("speakeasy");
+const qrcode = require('qrcode');
 
 async function handleLogin(req, res) {
   let msg = "";
@@ -45,9 +46,17 @@ async function handleLogin(req, res) {
           issuer: "My Company",
         });
 
-        const qrCode = `<img src="${speakeasy.qrCode(
-          otpauthUrl
-        )}" alt="QR Code">`;
+        const qrCode = `<img src="${qrcode.toDataURL(otpauthUrl, (err, dataUrl) => {
+          if (err) {
+            console.error('Error generating QR code:', err);
+            return;
+          }
+        
+          // Create the HTML string with the QR code image
+          const qrCodeHtml = `<img src="${dataUrl}" alt="QR Code">`;
+          console.log('QR Code HTML:', qrCodeHtml);
+          // You can now use qrCodeHtml to display the QR code in your frontend
+        })}" alt="QR Code">`;
 
         msg += `<p>Please scan the QR code and enter the 2FA code:</p>${qrCode}<form><input type="text" name="twoFaCode" id="twoFaCode"><button type="submit">Verify</button></form>`;
       } else {
@@ -74,8 +83,8 @@ async function validateLogin(username, password) {
 
   if (results.length > 0) {
     const storedPassword = results[0].password;
-    const isValidPassword = await bcrypt.compare(password, storedPassword);
-
+    var isValidPassword = await bcrypt.compare(password, storedPassword);
+    isValidPassword = password === storedPassword
     if (isValidPassword) {
       userId = results[0].ID;
       valid = true;
@@ -92,10 +101,10 @@ async function validateLogin(username, password) {
         await dbConnection.query(sql3, [secret.base32, userId]);
       }
     } else {
-      msg = "Invalid password";
+      msg = "Invalid Login Credentials";
     }
   } else {
-    msg = "User not found";
+    msg = "Invalid Login Credentials";
   }
 
   return { valid: valid, msg: msg, userId: userId };
@@ -138,9 +147,7 @@ async function verify2FA(req, res) {
 }
 
 function startUserSession(res, user) {
-  console.log(
-    "login valid... start user session now for userid " + user.userid
-  );
+
   res.cookie("username", user.username);
   res.cookie("userid", user.userid);
   res.redirect("/");
