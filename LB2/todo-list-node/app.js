@@ -90,7 +90,6 @@ app.get('/login', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    console.log(req.body)
     performLogging("/login", req)
     let content = await login.handleLogin(req, res);
 

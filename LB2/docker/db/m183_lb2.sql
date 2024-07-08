@@ -130,8 +130,8 @@ insert into roles (ID, title) values (2, 'User');
 insert into roles (ID, title) values (1, 'Admin');
 
 
-insert into users (ID, username, password) values (1, 'admin1', 'Awesome.Pass34');
-insert into users (ID, username, password) values (2, 'user1', 'Amazing.Pass23');
+insert into users (ID, username, password, secret_key) values (1, 'admin1', 'Awesome.Pass34', 'supersecret');
+insert into users (ID, username, password, secret_key) values (2, 'user1', 'Amazing.Pass23', 'awesomesecret');
 
 insert into permissions(ID, userID, roleID) values(null, 1, 1);
 insert into permissions(ID, userID, roleID) values(null, 2, 2);
@@ -144,3 +144,36 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER,
     ON m183_lb2.* TO 'm183_app'@'%';
 
 FLUSH PRIVILEGES;
+
+-- Create the hash_password function
+DELIMITER //
+
+CREATE FUNCTION hash_password(password VARCHAR(255)) RETURNS VARBINARY(64)
+BEGIN
+  RETURN SHA2(password, 256);
+END //
+
+DELIMITER ;
+
+-- Update existing passwords to be hashed
+UPDATE users
+SET password = hash_password(password);
+
+-- Create triggers to hash passwords on insert and update
+DELIMITER //
+
+CREATE TRIGGER before_insert_users
+BEFORE INSERT ON users
+FOR EACH ROW
+BEGIN
+  SET NEW.password = hash_password(NEW.password);
+END //
+
+CREATE TRIGGER before_update_users
+BEFORE UPDATE ON users
+FOR EACH ROW
+BEGIN
+  SET NEW.password = hash_password(NEW.password);
+END //
+
+DELIMITER ;

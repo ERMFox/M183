@@ -2,66 +2,40 @@ const db = require("./fw/db");
 const bcrypt = require("bcrypt")
 const speakeasy = require("speakeasy");
 const qrcode = require('qrcode');
+const crypto = require('crypto')
+
+const saltRounds = 10
 
 async function handleLogin(req, res) {
   let msg = "";
-
   let user = { username: "", userid: 0 };
 
-  if (
-    typeof req.body.username !== "undefined" &&
-    typeof req.body.password !== "undefined"
-  ) {
-    // Get username and password from the form and call the validateLogin
-
+  if (typeof req.body.username !== "undefined" && typeof req.body.password !== "undefined") {
     let result = await validateLogin(req.body.username, req.body.password);
 
     if (result.valid) {
-      // Login is correct. Store user information to be returned.
-
       user.username = req.body.username;
-
       user.userid = result.userId;
-
       msg = result.msg;
 
-      // Check if 2FA is enabled for this user
-
       const dbConnection = await db.connectDB();
-
       const sql = `SELECT secret_key FROM users WHERE ID = ?`;
-
       const [results, fields] = await dbConnection.query(sql, [user.userid]);
 
       if (results.length > 0 && results[0].secret_key !== "") {
-        // 2FA is enabled, generate a QR code and prompt the user to enter the 2FA code
-
         const secret = results[0].secret_key;
-
         const otpauthUrl = speakeasy.otpauthURL({
           secret: secret,
-
           label: "My App",
-
-          issuer: "My Company",
+          issuer: "My Company"
         });
 
-        const qrCode = `<img src="${qrcode.toDataURL(otpauthUrl, (err, dataUrl) => {
-          if (err) {
-            console.error('Error generating QR code:', err);
-            return;
-          }
-        
-          // Create the HTML string with the QR code image
-          const qrCodeHtml = `<img src="${dataUrl}" alt="QR Code">`;
-          console.log('QR Code HTML:', qrCodeHtml);
-          // You can now use qrCodeHtml to display the QR code in your frontend
-        })}" alt="QR Code">`;
+        // Generate the QR code asynchronously
+        const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl);
+        const qrCode = `<img src="${qrCodeDataUrl}" alt="QR Code">`;
 
-        msg += `<p>Please scan the QR code and enter the 2FA code:</p>${qrCode}<form><input type="text" name="twoFaCode" id="twoFaCode"><button type="submit">Verify</button></form>`;
+        msg += `<p>Please scan the QR code and enter the 2FA code:</p>${qrCode}<form method="post" action="/verify2fa"><input type="text" name="twoFaCode" id="twoFaCode"><button type="submit">Verify</button></form>`;
       } else {
-        // 2FA is not enabled, start the user session
-
         startUserSession(res, user);
       }
     } else {
@@ -71,7 +45,6 @@ async function handleLogin(req, res) {
 
   return { html: msg + getHtml(), user: user };
 }
-
 async function validateLogin(username, password) {
   let msg = "";
   let userId = 0;
@@ -80,16 +53,30 @@ async function validateLogin(username, password) {
   const dbConnection = await db.connectDB();
   const sql = `SELECT ID, password FROM users WHERE username = ?`;
   const [results, fields] = await dbConnection.query(sql, [username]);
-
   if (results.length > 0) {
-    const storedPassword = results[0].password;
-    var isValidPassword = await bcrypt.compare(password, storedPassword);
-    isValidPassword = password === storedPassword
-    if (isValidPassword) {
-      userId = results[0].ID;
-      valid = true;
-      msg = "Login successful";
+    const storedPassword = results[0].password.toString('hex');
+    // Check if the password is SHA-256 hashed
+    if (storedPassword.length === 64) {
+      const sha256Hash = crypto.createHash('sha256').update(password).digest('hex');
+      if (sha256Hash === storedPassword) {
+        // Re-hash the password with bcrypt and update the stored password
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        await dbConnection.query('UPDATE users SET password = ? WHERE ID = ?', [hashedPassword, results[0].ID]);
+        userId = results[0].ID;
+        valid = true;
+        msg = "Login successful";
+      }
+    } else {
+      // Check if the password is bcrypt hashed
+      const isValidPassword = await bcrypt.compare(password, storedPassword);
+      if (isValidPassword) {
+        userId = results[0].ID;
+        valid = true;
+        msg = "Login successful";
+      }
+    }
 
+    if (valid) {
       // Check if 2FA is not enabled for this user
       const sql2 = `SELECT secret_key FROM users WHERE ID = ?`;
       const [results2, fields2] = await dbConnection.query(sql2, [userId]);
