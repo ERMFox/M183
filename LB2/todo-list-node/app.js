@@ -76,33 +76,33 @@ app.get('/edit', async (req, res) => {
 
 
 app.get('/login', async (req, res) => {
-    performLogging("/login", req)
-    let content = await login.handleLogin(req, res);
-
-    if(content.user.userid !== 0) {
-        // login was successful... set cookies and redirect to /
-        login.startUserSession(res, content.user);
-    } else {
-        // login unsuccessful or not made jet... display login form
-        let html = await wrapContent(content.html, req);
-        res.send(html);
-    }
+    performLogging("/login", req);
+    const html = await wrapContent(login.getHtml(), req);
+    res.send(html);
 });
 
 app.post('/login', async (req, res) => {
-    performLogging("/login", req)
-    let content = await login.handleLogin(req, res);
-
-    if(content.user.userid !== 0) {
+    performLogging("/login", req);
+    
+    let content;
+    try {
+        content = await login.handleLogin(req, res);
+        console.log("Content received from handleLogin:", content);
+    } catch (error) {
+        console.error("Error in handleLogin:", error);
+        res.status(500).send("Internal Server Error");
+        return;
+    }
+  
+    if (content && content.user && content.user.userid !== 0) {
         // login was successful... set cookies and redirect to /
         login.startUserSession(res, content.user);
     } else {
-        // login unsuccessful or not made jet... display login form
-        let html = await wrapContent(content.html, req);
+        // login unsuccessful or not made yet... display login form
+        const html = await wrapContent(content.html, req);
         res.send(html);
     }
 });
-
 // Logout
 app.get('/logout', (req, res) => {
     req.session.destroy();
