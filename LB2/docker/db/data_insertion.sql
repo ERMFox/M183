@@ -11,3 +11,9 @@ insert into users (ID, username, password, secret_key) values (2, 'user1', 'Amaz
 -- Insert permissions
 insert into permissions(ID, userID, roleID) values(null, 1, 1);
 insert into permissions(ID, userID, roleID) values(null, 2, 2);
+
+
+-- Remove triggers
+DROP TRIGGER IF EXISTS before_update_users;
+
+-- Remove function

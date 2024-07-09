@@ -1,10 +1,10 @@
 const db = require("./fw/db");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 const speakeasy = require("speakeasy");
 const qrcode = require('qrcode');
-const crypto = require('crypto')
+const crypto = require('crypto');
 
-const saltRounds = 10
+const saltRounds = 10;
 
 async function handleLogin(req, res) {
   let msg = "";
@@ -20,7 +20,7 @@ async function handleLogin(req, res) {
 
       const dbConnection = await db.connectDB();
       const sql = `SELECT secret_key FROM users WHERE ID = ?`;
-      const [results, fields] = await dbConnection.query(sql, [user.userid]);
+      const [results] = await dbConnection.query(sql, [user.userid]);
 
       if (results.length > 0 && results[0].secret_key !== "") {
         const secret = results[0].secret_key;
@@ -33,7 +33,7 @@ async function handleLogin(req, res) {
         // Generate the QR code asynchronously
         const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl);
         const qrCode = `<img src="${qrCodeDataUrl}" alt="QR Code">`;
-
+        console.log(qrCode);
         msg += `<p>Please scan the QR code and enter the 2FA code:</p>${qrCode}<form method="post" action="/verify2fa"><input type="text" name="twoFaCode" id="twoFaCode"><button type="submit">Verify</button></form>`;
       } else {
         startUserSession(res, user);
@@ -45,6 +45,7 @@ async function handleLogin(req, res) {
 
   return { html: msg + getHtml(), user: user };
 }
+
 async function validateLogin(username, password) {
   let msg = "";
   let userId = 0;
@@ -52,14 +53,17 @@ async function validateLogin(username, password) {
 
   const dbConnection = await db.connectDB();
   const sql = `SELECT ID, password FROM users WHERE username = ?`;
-  const [results, fields] = await dbConnection.query(sql, [username]);
+  const [results] = await dbConnection.query(sql, [username]);
+  console.log(results[0].password)
   if (results.length > 0) {
-    const storedPassword = results[0].password.toString('hex');
-    // Check if the password is SHA-256 hashed
+    const storedPassword = results[0].password;
+
     if (storedPassword.length === 64) {
+      // SHA-256 hash comparison
       const sha256Hash = crypto.createHash('sha256').update(password).digest('hex');
+      console.log(sha256Hash)
       if (sha256Hash === storedPassword) {
-        // Re-hash the password with bcrypt and update the stored password
+        // Rehash the password with bcrypt and update the stored password
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         await dbConnection.query('UPDATE users SET password = ? WHERE ID = ?', [hashedPassword, results[0].ID]);
         userId = results[0].ID;
@@ -67,7 +71,7 @@ async function validateLogin(username, password) {
         msg = "Login successful";
       }
     } else {
-      // Check if the password is bcrypt hashed
+      // bcrypt hash comparison
       const isValidPassword = await bcrypt.compare(password, storedPassword);
       if (isValidPassword) {
         userId = results[0].ID;
@@ -79,9 +83,9 @@ async function validateLogin(username, password) {
     if (valid) {
       // Check if 2FA is not enabled for this user
       const sql2 = `SELECT secret_key FROM users WHERE ID = ?`;
-      const [results2, fields2] = await dbConnection.query(sql2, [userId]);
+      const [results2] = await dbConnection.query(sql2, [userId]);
 
-      if (results2.length > 0 && results2[0].secret_key === "") {
+      if (results2.length > 0 && !results2[0].secret_key) {
         // Generate a secret key for 2FA and store it in the database
         const secret = speakeasy.generateSecret();
         const sql3 = `UPDATE users SET secret_key = ? WHERE ID = ?`;
@@ -99,33 +103,26 @@ async function validateLogin(username, password) {
 
 async function verify2FA(req, res) {
   const userId = req.user.userid;
-
-  const usertwoFaCode = req.body.twoFaCode;
+  const userTwoFaCode = req.body.twoFaCode;
 
   const dbConnection = await db.connectDB();
-
   const sql = `SELECT secret_key FROM users WHERE ID = ?`;
-
-  const [results, fields] = await dbConnection.query(sql, [userId]);
+  const [results] = await dbConnection.query(sql, [userId]);
 
   if (results.length > 0) {
     const secret = results[0].secret_key;
 
     const verified = speakeasy.totp.verify({
       secret: secret,
-
-      token: usertwoFaCode,
-
+      token: userTwoFaCode,
       encoding: "base32",
     });
 
     if (verified) {
       // 2FA code is valid, start the user session
-
       startUserSession(res, req.user);
     } else {
       // 2FA code is invalid, display an error message
-
       res.send("Invalid 2FA code");
     }
   } else {
@@ -134,7 +131,6 @@ async function verify2FA(req, res) {
 }
 
 function startUserSession(res, user) {
-
   res.cookie("username", user.username);
   res.cookie("userid", user.userid);
   res.redirect("/");
@@ -143,20 +139,19 @@ function startUserSession(res, user) {
 function getHtml() {
   return `
     <h2>Login</h2>
-
     <form id="form" method="post" action="/login">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" class="form-control size-medium" name="username" id="username">
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control size-medium" name="password" id="password">
-        </div>
-        <div class="form-group">
-            <label for="submit" ></label>
-            <input id="submit" type="submit" class="btn size-auto" value="Login" />
-        </div>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control size-medium" name="username" id="username">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control size-medium" name="password" id="password">
+      </div>
+      <div class="form-group">
+        <label for="submit"></label>
+        <input id="submit" type="submit" class="btn size-auto" value="Login" />
+      </div>
     </form>`;
 }
 
