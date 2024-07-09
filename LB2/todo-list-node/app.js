@@ -34,6 +34,10 @@ app.use(cookieParser());
 
 // Routen
 app.get('/', async (req, res) => {
+    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+        res.redirect("/lockout")
+        return
+    }
     performLogging("/", req)
     if (activeUserSession(req)) {
         let html = await wrapContent(await index.html(req), req)
@@ -45,6 +49,10 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
     performLogging("/, post", req)
+    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+        res.redirect("/lockout")
+        return
+    }
     if (activeUserSession(req)) {
         let html = await wrapContent(await index.html(req), req)
         res.send(html);
@@ -57,6 +65,7 @@ app.post('/', async (req, res) => {
 app.get('/admin/users', async (req, res) => {
     performLogging("/admin/users", req)
     if (!encrypter.verifyCookie(req.cookies.userid)){
+        res.redirect("/lockout")
         return
     }
     var userID = encrypter.returnCookieValueAsInt(req.cookies.userid)
@@ -71,6 +80,10 @@ app.get('/admin/users', async (req, res) => {
 // edit task
 app.get('/edit', async (req, res) => {
     performLogging("/edit", req)
+    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+        res.redirect("/lockout")
+        return
+    }
     if (activeUserSession(req)) {
         let html = await wrapContent(await editTask.html(req), req);
         res.send(html);
@@ -85,6 +98,7 @@ app.get('/delete', async (req, res) =>{
     performLogging("/delete", req)
     const taskID = req.query.id
     if (!encrypter.verifyCookie(req.cookies.userid)){
+        res.redirect("/lockout")
         return
     }
     const userID = encrypter.returnCookieValueAsInt(req.cookies.userid)
@@ -144,6 +158,10 @@ app.get('/logout', (req, res) => {
 // Profilseite anzeigen
 app.get('/profile', (req, res) => {
     performLogging("/profile", req)
+    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+        res.redirect("/lockout")
+        return
+    }
     if (req.session.loggedin) {
         res.send(`Welcome, ${req.session.username}! <a href="/logout">Logout</a>`);
     } else {
@@ -154,6 +172,10 @@ app.get('/profile', (req, res) => {
 // save task
 app.post('/savetask', async (req, res) => {
     performLogging("/savetask, post", req)
+    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+        res.redirect("/lockout")
+        return
+    }
     if (activeUserSession(req)) {
         let html = await wrapContent(await saveTask.html(req), req);
         res.send(html);
@@ -164,6 +186,10 @@ app.post('/savetask', async (req, res) => {
 
 // search
 app.post('/search', async (req, res) => {
+    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+        res.redirect("/lockout")
+        return
+    }
     performLogging("/search, post", req)
     let html = await search.html(req);
     res.send(html);
@@ -171,6 +197,10 @@ app.post('/search', async (req, res) => {
 
 // search provider
 app.get('/search/v2/', async (req, res) => {
+    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+        res.redirect("/lockout")
+        return
+    }
     performLogging("/search/v2", req)
     let result = await searchProvider.search(req);
     res.send(result);
