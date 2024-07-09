@@ -14,6 +14,7 @@ const searchProvider = require('./search/v2/index');
 const logs = require('./tools/log_helper')
 
 const db = require("./fw/db");
+const { symlink } = require('fs');
 
 const app = express();
 const PORT = 3000;
@@ -75,6 +76,18 @@ app.get('/edit', async (req, res) => {
         res.redirect('/');
     }
 });
+
+// remove task
+
+app.get('/delete', async (req, res) =>{
+    performLogging("/delete", req)
+    const taskID = req.query.id
+    const userID = req.cookies.userid
+    if (await compareUserAndTaskID(taskID, userID)){
+        deleteTask(taskID);
+    }
+    res.redirect("/")
+})
 
 // Login-Seite anzeigen
 
@@ -178,6 +191,38 @@ function activeUserSession(req) {
     return req.cookies !== undefined && req.cookies.username !== undefined && req.cookies.username !== '';
 }
 
+async function compareUserAndTaskID(taskID, userID) {
+    let dbConnection;
+    try {
+        dbConnection = await db.connectDB();
+        const sql = "SELECT title FROM tasks WHERE ID = ? AND userID = ?";
+        const [result] = await dbConnection.query(sql, [taskID, userID]);
+        return result.length > 0;
+    } catch (error) {
+        console.error('Error comparing user and task ID:', error);
+        throw error; // Propagate the error to be handled by the caller
+    } finally {
+        if (dbConnection) {
+            dbConnection.end(); // Ensure the connection is properly closed
+        }
+    }
+}
+
+const deleteTask = async (taskID) => {
+    let dbConnection;
+    try {
+        dbConnection = await db.connectDB();
+        const sql = "DELETE FROM tasks WHERE ID = ?";
+        await dbConnection.query(sql, [taskID]);
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        throw error;
+    } finally {
+        if (dbConnection) {
+            dbConnection.end();
+        }
+    }
+};
 
 async function checkLockedUser(ip){
     let dbConnection;
@@ -186,7 +231,7 @@ async function checkLockedUser(ip){
         const sql = "SELECT lock_untill FROM login_attempts WHERE userIP = ?"
         const [result] = await dbConnection.query(sql, [ip]);
         return result
-    } catch (e){
+    } catch (error){
         console.error("Error checking locked users:", error);
         return false;
     } finally{
@@ -201,7 +246,7 @@ async function lockUser(ip){
     try{
         dbConnection = await db.connectDB();
 
-    } catch (e){
+    } catch (error){
         console.error("Error locking users:", error);
         return false;
     } finally{
