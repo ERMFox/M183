@@ -15,15 +15,23 @@ By using this script, you agree to the following terms:
 
 ## Found Security Risks
 1. ~~No Logs~~
-2. Console displays login information 
+2. ~~Console displays login information~~ 
 3. Login Credentials in SQL script (not exactly a risk but could be done differently)
-4. Login Credentials not hashed
+4. ~~Login Credentials not hashed~~
 5. ~~Security voulnerabilty with mysql package~~
 6. bypass login with edit of cookies
 7. server crash if cookies are filled incorectly
 8. /admin/users route accesible as long as cookies are filled
 9. ~~http is insecure~~
 10. ~~login config for database in js~~
+11. login brute force available
+12. hidden field PW
+13. SQL injections
+14. Session handling
+15. XSS on index.js on username
+16. ~~too much info on failed login~~
+17. search open
+18. 404 error on delete
 
 ## Added Functionalities
 

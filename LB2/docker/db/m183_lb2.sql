@@ -126,15 +126,6 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-insert into roles (ID, title) values (2, 'User');
-insert into roles (ID, title) values (1, 'Admin');
-
-
-insert into users (ID, username, password, secret_key) values (1, 'admin1', 'Awesome.Pass34', 'supersecret');
-insert into users (ID, username, password, secret_key) values (2, 'user1', 'Amazing.Pass23', 'awesomesecret');
-
-insert into permissions(ID, userID, roleID) values(null, 1, 1);
-insert into permissions(ID, userID, roleID) values(null, 2, 2);
 
 CREATE USER 'm183_app'@'%' IDENTIFIED BY 'm183_password_of_App!?';
 
@@ -154,10 +145,6 @@ BEGIN
 END //
 
 DELIMITER ;
-
--- Update existing passwords to be hashed
-UPDATE users
-SET password = hash_password(password);
 
 -- Create triggers to hash passwords on insert and update
 DELIMITER //
