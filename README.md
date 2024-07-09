@@ -25,8 +25,8 @@ By using this script, you agree to the following terms:
 9. ~~http is insecure~~
 10. ~~login config for database in js~~
 11. login brute force available
-12. hidden field PW
-13. SQL injections
+12. ~~hidden field PW~~
+13. ~~SQL injections~~
 14. Session handling
 15. XSS on index.js on username
 16. ~~too much info on failed login~~
