@@ -13,6 +13,8 @@ const search = require('./search');
 const searchProvider = require('./search/v2/index');
 const logs = require('./tools/log_helper')
 
+const db = require("./fw/db");
+
 const app = express();
 const PORT = 3000;
 
@@ -53,7 +55,7 @@ app.post('/', async (req, res) => {
 // edit task
 app.get('/admin/users', async (req, res) => {
     performLogging("/admin/users", req)
-    if(req.cookies.userid = 1) {
+    if(await checkUserPermissions(req.cookies.userid) === "Admin") {
         let html = await wrapContent(await adminUser.html, req);
         res.send(html);
     } else {
@@ -170,4 +172,44 @@ function performLogging(route, req){
 function activeUserSession(req) {
     // check if cookie with user information ist set
     return req.cookies !== undefined && req.cookies.username !== undefined && req.cookies.username !== '';
+}
+
+
+async function checkUserPermissions(userId) {
+    let dbConnection;
+
+    try {
+        // Validate userId
+        if (!Number.isInteger(Number(userId))) {
+            console.log(userId);
+            return false;
+        }
+
+        // Connect to the database
+        dbConnection = await db.connectDB();
+
+        // Query to get role title using a JOIN
+        const sql = `
+            SELECT r.title
+            FROM permissions p
+            JOIN roles r ON p.roleID = r.ID
+            WHERE p.userID = ?
+        `;
+        const [result] = await dbConnection.query(sql, [userId]);
+
+        if (result.length === 0) {
+            return false;
+        }
+
+        // Return the role title
+        return result[0].title;
+    } catch (error) {
+        console.error("Error checking user permissions:", error);
+        return false;
+    } finally {
+        if (dbConnection) {
+            // Ensure the database connection is closed
+            dbConnection.end();
+        }
+    }
 }
