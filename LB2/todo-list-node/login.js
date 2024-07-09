@@ -24,7 +24,6 @@ async function handleLogin(req, res) {
 
             if (results.length > 0 && results[0].secret_key !== "") {
                 const secret = results[0].secret_key;
-                console.log("Secret key retrieved:", secret); // Log the secret key
                 const otpauthUrl = speakeasy.otpauthURL({
                     secret: secret,
                     label: "My App",
@@ -34,7 +33,7 @@ async function handleLogin(req, res) {
                 // Generate the QR code asynchronously
                 try {
                     const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl);
-                    console.log("QR Code Data URL:", qrCodeDataUrl); // Log the QR code data URL
+
                     const qrCode = `<img src="${qrCodeDataUrl}" alt="QR Code">`;
                     msg += `<p>Please scan the QR code and enter the 2FA code:</p>${qrCode}<form method="post" action="/verify2fa"><input type="text" name="twoFaCode" id="twoFaCode"><button type="submit">Verify</button></form>`;
                 } catch (error) {

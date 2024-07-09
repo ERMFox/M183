@@ -18,6 +18,8 @@ const db = require("./fw/db");
 const app = express();
 const PORT = 3000;
 
+var bruteforceprotection = {}
+
 // Middleware für Session-Handling
 app.use(session({
     secret: 'secret',
@@ -89,7 +91,9 @@ app.post('/login', async (req, res) => {
     let content;
     try {
         content = await login.handleLogin(req, res);
-        console.log("Content received from handleLogin:", content);
+        if(content.user.username != ''){
+        
+        }
     } catch (error) {
         console.error("Error in handleLogin:", error);
         res.status(500).send("Internal Server Error");
@@ -174,6 +178,38 @@ function activeUserSession(req) {
     return req.cookies !== undefined && req.cookies.username !== undefined && req.cookies.username !== '';
 }
 
+
+async function checkLockedUser(ip){
+    let dbConnection;
+    try{
+        dbConnection = await db.connectDB();
+        const sql = "SELECT lock_untill FROM login_attempts WHERE userIP = ?"
+        const [result] = await dbConnection.query(sql, [ip]);
+        return result
+    } catch (e){
+        console.error("Error checking locked users:", error);
+        return false;
+    } finally{
+        if (dbConnection){
+            dbConnection.end
+        }
+    }
+}
+
+async function lockUser(ip){
+    let dbConnection;
+    try{
+        dbConnection = await db.connectDB();
+
+    } catch (e){
+        console.error("Error locking users:", error);
+        return false;
+    } finally{
+        if (dbConnection){
+            dbConnection.end
+        }
+    }
+}
 
 async function checkUserPermissions(userId) {
     let dbConnection;

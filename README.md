@@ -21,7 +21,7 @@ By using this script, you agree to the following terms:
 5. ~~Security voulnerabilty with mysql package~~
 6. bypass login with edit of cookies
 7. server crash if cookies are filled incorectly
-8. /admin/users route accesible as long as cookies are filled
+8. ~~/admin/users route accesible as long as cookies are filled~~
 9. ~~http is insecure~~
 10. ~~login config for database in js~~
 11. login brute force available
