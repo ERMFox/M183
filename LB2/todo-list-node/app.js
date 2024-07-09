@@ -12,9 +12,7 @@ const saveTask = require('./savetask');
 const search = require('./search');
 const searchProvider = require('./search/v2/index');
 const logs = require('./tools/log_helper')
-
-const db = require("./fw/db");
-const { symlink } = require('fs');
+const dbFunctions = require("./tools/dbfunctions")
 
 const app = express();
 const PORT = 3000;
@@ -58,7 +56,7 @@ app.post('/', async (req, res) => {
 // edit task
 app.get('/admin/users', async (req, res) => {
     performLogging("/admin/users", req)
-    if(await checkUserPermissions(req.cookies.userid) === "Admin") {
+    if(await dbFunctions.checkUserPermissions(req.cookies.userid) === "Admin") {
         let html = await wrapContent(await adminUser.html, req);
         res.send(html);
     } else {
@@ -83,8 +81,8 @@ app.get('/delete', async (req, res) =>{
     performLogging("/delete", req)
     const taskID = req.query.id
     const userID = req.cookies.userid
-    if (await compareUserAndTaskID(taskID, userID)){
-        deleteTask(taskID);
+    if (await dbFunctions.compareUserAndTaskID(taskID, userID)){
+        dbFunctions.deleteTask(taskID);
     }
     res.redirect("/")
 })
@@ -97,15 +95,21 @@ app.get('/login', async (req, res) => {
     const html = await wrapContent(login.getHtml(), req);
     res.send(html);
 });
-
+app.get('/lockout', (req, res) =>{
+    res.send('Locked for 5 minutes')
+})
 app.post('/login', async (req, res) => {
     performLogging("/login", req);
-    
+    const locked = await dbFunctions.checkLockedUser(req.ip)
+    if (locked){
+        res.redirect('/lockout')
+        return
+    }
     let content;
     try {
         content = await login.handleLogin(req, res);
-        if(content.user.username != ''){
-        
+        if(content.user.username === ''){
+            await dbFunctions.lockUser(req.ip)
         }
     } catch (error) {
         console.error("Error in handleLogin:", error);
@@ -189,108 +193,4 @@ function performLogging(route, req){
 function activeUserSession(req) {
     // check if cookie with user information ist set
     return req.cookies !== undefined && req.cookies.username !== undefined && req.cookies.username !== '';
-}
-
-async function compareUserAndTaskID(taskID, userID) {
-    let dbConnection;
-    try {
-        dbConnection = await db.connectDB();
-        const sql = "SELECT title FROM tasks WHERE ID = ? AND userID = ?";
-        const [result] = await dbConnection.query(sql, [taskID, userID]);
-        return result.length > 0;
-    } catch (error) {
-        console.error('Error comparing user and task ID:', error);
-        throw error; // Propagate the error to be handled by the caller
-    } finally {
-        if (dbConnection) {
-            dbConnection.end(); // Ensure the connection is properly closed
-        }
-    }
-}
-
-const deleteTask = async (taskID) => {
-    let dbConnection;
-    try {
-        dbConnection = await db.connectDB();
-        const sql = "DELETE FROM tasks WHERE ID = ?";
-        await dbConnection.query(sql, [taskID]);
-    } catch (error) {
-        console.error('Error deleting task:', error);
-        throw error;
-    } finally {
-        if (dbConnection) {
-            dbConnection.end();
-        }
-    }
-};
-
-async function checkLockedUser(ip){
-    let dbConnection;
-    try{
-        dbConnection = await db.connectDB();
-        const sql = "SELECT lock_untill FROM login_attempts WHERE userIP = ?"
-        const [result] = await dbConnection.query(sql, [ip]);
-        return result
-    } catch (error){
-        console.error("Error checking locked users:", error);
-        return false;
-    } finally{
-        if (dbConnection){
-            dbConnection.end
-        }
-    }
-}
-
-async function lockUser(ip){
-    let dbConnection;
-    try{
-        dbConnection = await db.connectDB();
-
-    } catch (error){
-        console.error("Error locking users:", error);
-        return false;
-    } finally{
-        if (dbConnection){
-            dbConnection.end
-        }
-    }
-}
-
-async function checkUserPermissions(userId) {
-    let dbConnection;
-
-    try {
-        // Validate userId
-        if (!Number.isInteger(Number(userId))) {
-            console.log(userId);
-            return false;
-        }
-
-        // Connect to the database
-        dbConnection = await db.connectDB();
-
-        // Query to get role title using a JOIN
-        const sql = `
-            SELECT r.title
-            FROM permissions p
-            JOIN roles r ON p.roleID = r.ID
-            WHERE p.userID = ?
-        `;
-        const [result] = await dbConnection.query(sql, [userId]);
-
-        if (result.length === 0) {
-            return false;
-        }
-
-        // Return the role title
-        return result[0].title;
-    } catch (error) {
-        console.error("Error checking user permissions:", error);
-        return false;
-    } finally {
-        if (dbConnection) {
-            // Ensure the database connection is closed
-            dbConnection.end();
-        }
-    }
 }
