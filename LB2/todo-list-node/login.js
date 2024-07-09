@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const speakeasy = require("speakeasy");
 const qrcode = require('qrcode');
 const crypto = require('crypto');
-
+const encrypter = require('./tools/encrypter')
 const saltRounds = 10;
 
 async function handleLogin(req, res) {
@@ -139,8 +139,8 @@ async function verify2FA(req, res) {
 }
 
 function startUserSession(res, user) {
-    res.cookie("username", user.username);
-    res.cookie("userid", user.userid);
+    res.cookie("username", encrypter.signCookie(user.username));
+    res.cookie("userid", encrypter.signCookie(user.userid));
     res.redirect("/");
 }
 

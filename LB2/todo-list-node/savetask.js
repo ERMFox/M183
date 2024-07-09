@@ -1,5 +1,5 @@
 const db = require('./fw/db');
-
+const encrypter = require("./tools/encrypter")
 async function getHtml(req) {
     let html = '';
     let taskId = '';
@@ -16,7 +16,10 @@ async function getHtml(req) {
     if (req.body.title !== undefined && req.body.state !== undefined){
         let state = req.body.state;
         let title = req.body.title;
-        let userid = req.cookies.userid;
+        if(!encrypter.verifyCookie(req.cookies.userid)){
+            return
+        }
+        let userid = encrypter.returnCookieValueAsInt(req.cookies.userid);
 
         if (taskId === ''){
             stmt = db.executeStatement("insert into tasks (title, state, userID) values ('"+title+"', '"+state+"', '"+userid+"')");

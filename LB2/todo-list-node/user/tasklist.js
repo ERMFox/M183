@@ -1,6 +1,9 @@
 const db = require('../fw/db');
-
+const encrypter = require('../tools/encrypter')
 async function getHtml(req) {
+    if(!encrypter.verifyCookie(req.cookies.userid)){
+        return
+    }
     let html = `
     <section id="list">
         <a href="edit">Create Task</a>
@@ -15,7 +18,8 @@ async function getHtml(req) {
 
     let conn = await db.connectDB();
     const sql = 'select ID, title, state from tasks where UserID = ?'
-    let [result, fields] = await conn.query(sql, req.cookies.userid);
+    var userid = encrypter.returnCookieValueAsInt(req.cookies.userid)
+    let [result, fields] = await conn.query(sql, userid);
     result.forEach(function(row) {
         html += `
             <tr>

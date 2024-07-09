@@ -1,4 +1,8 @@
+const encrypter = require('../tools/encrypter')
 function getHtml(req) {
+    if (!encrypter.verifyCookie(req.cookies.userid)){
+        return
+    }
     return `
 <section id="search">
     <h2>Search</h2>
@@ -31,7 +35,7 @@ function getHtml(req) {
             submitHandler: function (form) {
                 provider = $("#searchurl").val();
                 terms = $("#terms").val();
-                userid = `+req.cookies.userid+`;
+                userid = `+ encrypter.returnCookieValueAsInt(req.cookies.userid)+`;
                 $("#msg").show();
                 $("#result").html("");
                 $.post("search", { provider: provider, terms: terms, userid: userid }, function(data){

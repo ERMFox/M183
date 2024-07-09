@@ -13,7 +13,7 @@ const search = require('./search');
 const searchProvider = require('./search/v2/index');
 const logs = require('./tools/log_helper')
 const dbFunctions = require("./tools/dbfunctions")
-
+const encrypter = require("./tools/encrypter")
 const app = express();
 const PORT = 3000;
 
@@ -56,7 +56,11 @@ app.post('/', async (req, res) => {
 // edit task
 app.get('/admin/users', async (req, res) => {
     performLogging("/admin/users", req)
-    if(await dbFunctions.checkUserPermissions(req.cookies.userid) === "Admin") {
+    if (!encrypter.verifyCookie(req.cookies.userid)){
+        return
+    }
+    var userID = encrypter.returnCookieValueAsInt(req.cookies.userid)
+    if(await dbFunctions.checkUserPermissions(userID) === "Admin") {
         let html = await wrapContent(await adminUser.html, req);
         res.send(html);
     } else {
@@ -80,7 +84,10 @@ app.get('/edit', async (req, res) => {
 app.get('/delete', async (req, res) =>{
     performLogging("/delete", req)
     const taskID = req.query.id
-    const userID = req.cookies.userid
+    if (!encrypter.verifyCookie(req.cookies.userid)){
+        return
+    }
+    const userID = encrypter.returnCookieValueAsInt(req.cookies.userid)
     if (await dbFunctions.compareUserAndTaskID(taskID, userID)){
         dbFunctions.deleteTask(taskID);
     }
@@ -184,6 +191,8 @@ function performLogging(route, req){
     let userid = req.cookies.userid
     if (!req.cookies.userid){
         userid = null
+    }else{
+        userid = encrypter.returnCookieValueAsInt(userid)
     }
     
     logs.log("Accessed Rounte: " + route, userid, req.ip, req.headers['x-location'] || 'unknown', "", "Web-Interface")
