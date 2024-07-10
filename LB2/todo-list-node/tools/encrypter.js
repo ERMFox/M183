@@ -3,6 +3,9 @@ const config = require('../config')
 const secret = config.secret
 // Function to sign a cookie value
 function signCookie(value) {
+    if(!value){
+      return false
+    }
     const hmac = crypto.createHmac('sha256', secret);
     const stringValue = value.toString();
     hmac.update(stringValue);
@@ -11,6 +14,9 @@ function signCookie(value) {
   }
 
   function verifyCookie(signedValue) {
+    if(!signedValue){
+      return false
+    }
     const [value, signature] = signedValue.split('.');
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(value);
@@ -19,11 +25,17 @@ function signCookie(value) {
   }
 
   function returnCookieValue(cookie){
+    if(!cookie){
+      return false
+    }
     const [value, signature] = cookie.split('.');
     return value
   }
 
   function returnCookieValueAsInt(cookie){
+    if(!cookie){
+      return false
+    }
     const [value, signature] = cookie.split('.');
     return parseInt(value)
   }

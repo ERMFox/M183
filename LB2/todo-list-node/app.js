@@ -16,12 +16,12 @@ const dbFunctions = require("./tools/dbfunctions")
 const encrypter = require("./tools/encrypter")
 const app = express();
 const PORT = 3000;
-
+const config = require("./config")
 var bruteforceprotection = {}
 
 // Middleware für Session-Handling
 app.use(session({
-    secret: 'secret',
+    secret: config.sessionSecret,
     resave: true,
     saveUninitialized: true
 }));
@@ -35,7 +35,7 @@ app.use(cookieParser());
 // Routen
 app.get('/', async (req, res) => {
     if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     performLogging("/", req)
@@ -50,7 +50,7 @@ app.get('/', async (req, res) => {
 app.post('/', async (req, res) => {
     performLogging("/, post", req)
     if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     if (activeUserSession(req)) {
@@ -65,7 +65,7 @@ app.post('/', async (req, res) => {
 app.get('/admin/users', async (req, res) => {
     performLogging("/admin/users", req)
     if (!encrypter.verifyCookie(req.cookies.userid)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     var userID = encrypter.returnCookieValueAsInt(req.cookies.userid)
@@ -81,7 +81,7 @@ app.get('/admin/users', async (req, res) => {
 app.get('/edit', async (req, res) => {
     performLogging("/edit", req)
     if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     if (activeUserSession(req)) {
@@ -98,7 +98,7 @@ app.get('/delete', async (req, res) =>{
     performLogging("/delete", req)
     const taskID = req.query.id
     if (!encrypter.verifyCookie(req.cookies.userid)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     const userID = encrypter.returnCookieValueAsInt(req.cookies.userid)
@@ -159,7 +159,7 @@ app.get('/logout', (req, res) => {
 app.get('/profile', (req, res) => {
     performLogging("/profile", req)
     if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     if (req.session.loggedin) {
@@ -173,7 +173,7 @@ app.get('/profile', (req, res) => {
 app.post('/savetask', async (req, res) => {
     performLogging("/savetask, post", req)
     if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     if (activeUserSession(req)) {
@@ -187,7 +187,7 @@ app.post('/savetask', async (req, res) => {
 // search
 app.post('/search', async (req, res) => {
     if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     performLogging("/search, post", req)
@@ -198,7 +198,7 @@ app.post('/search', async (req, res) => {
 // search provider
 app.get('/search/v2/', async (req, res) => {
     if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
-        res.redirect("/lockout")
+        res.redirect("/login")
         return
     }
     performLogging("/search/v2", req)
