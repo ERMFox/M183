@@ -34,6 +34,7 @@ By using this script, you agree to the following terms:
 18. ~~404 error on delete~~
 19. ~~app crash when XSS attack is tried while saving tasks~~
 20. search not working properly
+21. 2fa now working properly
 
 ## Added Functionalities
 
