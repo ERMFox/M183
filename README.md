@@ -32,6 +32,7 @@ By using this script, you agree to the following terms:
 16. ~~too much info on failed login~~
 17. ~~search open~~
 18. ~~404 error on delete~~
+19. ~~app crash when XSS attack is tried while saving tasks~~
 
 ## Added Functionalities
 
@@ -95,7 +96,7 @@ i opened localhost
 i expected a https connection
 ### what did i get
 i got a http connection
-
+sessionSecret
 ## 5. Login
 
 ![login after login](image-4.png)
@@ -107,7 +108,7 @@ i tried to login after having had to modify the code in ordrr for it to not auto
 to get to the tasks page
 
 ### What did happen
-
+sessionSecret
 i got a weird alagumation of the tasks and login page, when i clicked on any of the links it had a simmilar result to a failed login, which would then result in me getting locked out for 15 minutes
 
 ## 6. Lockout
@@ -135,7 +136,7 @@ i found a Csrf cookie so good job
 ## 9. Admin/users route
 ### what did i expect to find
 a different way of locking out than jsut checking for logged in people
-### what did i find
+### what did i findsessionSecret
 the same type of lockout as the rest so standart user can access
 
 ## 10. MySQL hash

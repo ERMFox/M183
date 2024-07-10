@@ -16,15 +16,27 @@ async function getHtml(req) {
     if (req.body.title !== undefined && req.body.state !== undefined){
         let state = req.body.state;
         let title = req.body.title;
+
+        const escapeHtml = (unsafe) => {
+            return unsafe.replace(/[&<"']/g, (m) => {
+            return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '"': '&quot;',
+            "'": '&#039;'
+            }[m];
+            });
+        };
+
         if(!encrypter.verifyCookie(req.cookies.userid)){
             return
         }
         let userid = encrypter.returnCookieValueAsInt(req.cookies.userid);
 
         if (taskId === ''){
-            stmt = db.executeStatement("insert into tasks (title, state, userID) values ('"+title+"', '"+state+"', '"+userid+"')");
+            stmt = db.executeStatement("insert into tasks (title, state, userID) values ('"+escapeHtml(title)+"', '"+escapeHtml(state)+"', '"+userid+"')");
         } else {
-            stmt = db.executeStatement("update tasks set title = '"+title+"', state = '"+state+"' where ID = "+taskId);
+            stmt = db.executeStatement("update tasks set title = '"+escapeHtml(title)+"', state = '"+escapeHtml(state)+"' where ID = "+taskId);
         }
 
         html += "<span class='info info-success'>Update successfull</span>";
