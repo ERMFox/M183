@@ -33,6 +33,7 @@ By using this script, you agree to the following terms:
 17. ~~search open~~
 18. ~~404 error on delete~~
 19. ~~app crash when XSS attack is tried while saving tasks~~
+20. search not working properly
 
 ## Added Functionalities
 
@@ -193,3 +194,8 @@ the code to have a /remove endpoint
 no /remove endpoint
 
 # Honestly i currently have no idea for further tests i can do, really all of this  testing was performed by ERMFox (Soph), look into the git logs
+
+# LB2 Phase 3
+
+## Reply
+Thanks Mr. Zingg for showing us some of the mistakes you found in our code, thanks to this we were able to fix more of it 

@@ -5,10 +5,19 @@ async function getHtml(req) {
     if (req.body.provider === undefined || req.body.terms === undefined || req.body.userid === undefined){
         return "Not enough information provided";
     }
-
-    let provider = req.body.provider;
-    let terms = req.body.terms;
-    let userid = req.body.userid;
+    const escapeHtml = (unsafe) => {
+        return unsafe.replace(/[&<"']/g, (m) => {
+        return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '"': '&quot;',
+        "'": '&#039;'
+        }[m];
+        });
+    };
+    let provider = escapeHtml(req.body.provider);
+    let terms = escapeHtml(req.body.terms);
+    let userid = escapeHtml(req.body.userid);
 
     await sleep(1000); // this is a long, long search!!
 
