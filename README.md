@@ -200,3 +200,4 @@ no /remove endpoint
 
 ## Reply
 Thanks Mr. Zingg for showing us some of the mistakes you found in our code, thanks to this we were able to fix more of it 
+You showed us where mistakes were located in our files and we could fix most of it, for brute forcing tho we didnt do the option you showed us, we did a own option that didnt require a new liblary
