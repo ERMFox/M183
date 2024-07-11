@@ -34,7 +34,11 @@ app.use(cookieParser());
 
 // Routen
 app.get('/', async (req, res) => {
-    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+    console.log("he")
+    console.log(encrypter.verifyCookie(req.cookies.userid))
+    console.log(encrypter.verifyCookie(req.cookies.username))
+    if(!encrypter.verifyCookie(req.cookies.userid) || !encrypter.verifyCookie(req.cookies.username)){
+        console.log("heya")
         res.redirect("/login")
         return
     }
@@ -49,7 +53,7 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
     performLogging("/, post", req)
-    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+    if(!encrypter.verifyCookie(req.cookies.userid) || ! encrypter.verifyCookie(req.cookies.username)){
         res.redirect("/login")
         return
     }
@@ -80,7 +84,7 @@ app.get('/admin/users', async (req, res) => {
 // edit task
 app.get('/edit', async (req, res) => {
     performLogging("/edit", req)
-    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+    if(!encrypter.verifyCookie(req.cookies.userid) || ! encrypter.verifyCookie(req.cookies.username)){
         res.redirect("/login")
         return
     }
@@ -158,7 +162,7 @@ app.get('/logout', (req, res) => {
 // Profilseite anzeigen
 app.get('/profile', (req, res) => {
     performLogging("/profile", req)
-    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+    if(!encrypter.verifyCookie(req.cookies.userid) || ! encrypter.verifyCookie(req.cookies.username)){
         res.redirect("/login")
         return
     }
@@ -172,7 +176,7 @@ app.get('/profile', (req, res) => {
 // save task
 app.post('/savetask', async (req, res) => {
     performLogging("/savetask, post", req)
-    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+    if(!encrypter.verifyCookie(req.cookies.userid) || ! encrypter.verifyCookie(req.cookies.username)){
         res.redirect("/login")
         return
     }
@@ -186,7 +190,7 @@ app.post('/savetask', async (req, res) => {
 
 // search
 app.post('/search', async (req, res) => {
-    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+    if(!encrypter.verifyCookie(req.cookies.userid) || ! encrypter.verifyCookie(req.cookies.username)){
         res.redirect("/login")
         return
     }
@@ -197,7 +201,7 @@ app.post('/search', async (req, res) => {
 
 // search provider
 app.get('/search/v2/', async (req, res) => {
-    if(!encrypter.verifyCookie(req.cookies.userid) && ! encrypter.verifyCookie(req.cookies.username)){
+    if(!encrypter.verifyCookie(req.cookies.userid) || ! encrypter.verifyCookie(req.cookies.username)){
         res.redirect("/login")
         return
     }
@@ -225,7 +229,7 @@ function performLogging(route, req){
         userid = encrypter.returnCookieValueAsInt(userid)
     }
     
-    logs.log("Accessed Rounte: " + route, userid, req.ip, req.headers['x-location'] || 'unknown', "", "Web-Interface")
+    logs.log("Accessed Rounte: " + route, userid, req.ip, req.headers['x-location'] && 'unknown', "", "Web-Interface")
     
 }
 

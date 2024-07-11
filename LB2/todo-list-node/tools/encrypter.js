@@ -21,7 +21,7 @@ function signCookie(value) {
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(value);
     const validSignature = hmac.digest('hex');
-    return validSignature === signature ? value : null;
+    return validSignature === signature 
   }
 
   function returnCookieValue(cookie){
