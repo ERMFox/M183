@@ -5,7 +5,7 @@ async function search(req) {
         return "Not enough information to search";
     }
 
-    let userid = req.query.userid;
+    let userid = req.cookies.userid;
     let terms = req.query.terms;
     let result = '';
 
