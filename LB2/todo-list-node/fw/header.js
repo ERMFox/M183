@@ -25,8 +25,8 @@ async function getHtml(req) {
             return
         }
         id = encrypter.returnCookieValueAsInt(req.cookies.userid);
-        const sql = "select users.id userid, roles.id roleid, roles.title rolename from users inner join permissions on users.id = permissions.userid inner join roles on permissions.roleID = roles.id where userid = ?"
-        let stmt = await db.executeStatement(sql, [id]);
+        const sql = "select users.id userid, roles.id roleid, roles.title rolename from users inner join permissions on users.id = permissions.userid inner join roles on permissions.roleID = roles.id where userid = "
+        let stmt = await db.executeStatement(sql + [id]);
 
         logHelper.log("Database Accessed", id, "system", "system", "","webservice")
 
