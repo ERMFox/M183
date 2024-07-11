@@ -1,11 +1,11 @@
 const db = require('../../fw/db');
-
+const encrypter = require('../../tools/encrypter')
 async function search(req) {
     if (req.query.userid === undefined || req.query.terms === undefined){
         return "Not enough information to search";
     }
 
-    let userid = req.cookies.userid;
+    let userid = encrypter.returnCookieValueAsInt(req.cookies.userid);
     let terms = req.query.terms;
     let result = '';
 
